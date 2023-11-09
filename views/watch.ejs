@@ -1,0 +1,104 @@
+<!-- watch.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Location Updates</title>
+    <!-- Include Bootstrap CSS via CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+    <!-- Include Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    
+    <style>
+        /* Custom CSS styles for the "watcher" page (5th style) */
+        body {
+            background-color: #f0f0f0;
+        }
+
+        .map-container {
+            background-color: #ffffff;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .map {
+            min-height: 65vh;
+            height: 100%;
+        }
+
+        .sharing-id {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="text-center mt-3">Watcher</h1>
+        <p>Sharing ID: <span id="sharing-id"><%= locationData.sharingId %></span></p>
+        <div class="rounded shadow border border-secondary border-5">
+            <div id="map" class="map rounded"></div>
+        </div>
+    </div>
+    
+    <!-- Include Socket.io script (assuming it's loaded via a CDN) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.0/socket.io.min.js"></script>
+    <!-- Include Leaflet script (assuming it's loaded via a CDN) -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Include Leaflet.curve script (https://github.com/elfalem/Leaflet.curve) -->
+    <script src="https://cdn.rawgit.com/elfalem/Leaflet.curve/gh-pages/src/leaflet.curve.js"></script>
+    <!-- Include jQuery (assuming it's loaded via a CDN) -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+
+    <script>
+        // JavaScript code to display live location updates on the map
+        const { sharingId, latitude, longitude, path, active } = <%- JSON.stringify(locationData, null, 4) %>;
+        const map = L.map("map").setView([latitude, longitude], 13);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+
+        // Marker
+        let marker = L.marker([latitude, longitude]).addTo(map);
+
+        // Create a Polyline and add it to the map
+        const pathLine = L.polyline(path, { color: 'blue' }).addTo(map); // Streat Lines
+        // const pathLine = L.curve(path, { color: 'blue' }).addTo(map); // Curves
+
+
+
+        // Function to update the map with new location coordinates
+        updateMapWithLocation(latitude, longitude, active)
+        function updateMapWithLocation(latitude, longitude, active) {
+            marker.setLatLng([latitude, longitude]);
+            map.setView([latitude, longitude]) // , 13);
+            pathLine.addLatLng([latitude, longitude]); // Add the new coordinate to the pathLine
+
+            // Marker Color According to sharing status
+            if (!active) {
+                map.removeLayer(marker);
+                marker = L.circleMarker([latitude, longitude], { color: 'red', radius: 8 }).addTo(map);
+                pathLine.addLatLng([latitude, longitude]); // Add the new coordinate to the pathLine
+            }
+        }
+
+
+
+        // Establish a Socket.io connection
+        const socket = io();
+          
+        // Join a user who is sharing his location
+        socket.emit('join', { sharingId });
+
+        // location updates from the server
+        socket.on("watch", ({ locationData }) => {
+            const { sharingId, latitude, longitude, active } = locationData;
+            updateMapWithLocation(latitude, longitude, active);
+        });
+
+    </script>
+</body>
+
+</html>

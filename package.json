@@ -1,0 +1,40 @@
+{
+  "name": "Real-Time-Location-Sharing-App",
+  "version": "1.0.0",
+  "description": "Real-time location sharing & tracking app built with Node.js, Express, and Socket.IO",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "real-time",
+    "location-sharing",
+    "nodejs",
+    "express",
+    "socket.io",
+    "websockets",
+    "leaflet",
+    "live-location",
+    "geolocation",
+    "map-api",
+    "location-tracking"
+  ],
+  "author": "Anas Qiblawi",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "http": "0.0.1-security",
+    "mongoose": "^8.0.0",
+    "path": "^0.12.7",
+    "socket.io": "^4.7.2",
+    "uuid": "^9.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AnasQiblawi/Real-Time-Location-Sharing-App.git"
+  }
+}
